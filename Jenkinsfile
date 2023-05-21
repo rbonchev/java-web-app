@@ -1,40 +1,28 @@
 pipeline {
-  agent { label 'linux' }
-  options {
-    buildDiscarder(logRotator(numToKeepStr: '5'))
-  }
+  agent any
+  
   environment {
-    HEROKU_API_KEY = credentials('darinpope-heroku-api-key')
+    DOCKERHUB_CREDENTIALS = credentials('rbonchev-dockerhub')
   }
-  parameters { 
-    string(name: 'APP_NAME', defaultValue: '', description: 'What is the Heroku app name?') 
-  }
+  
   stages {
     stage('Build') {
       steps {
-        sh 'docker build -t darinpope/java-web-app:latest .'
+        sh 'docker build -t rbonchev/java-web-app:latest .'
       }
     }
     stage('Login') {
       steps {
-        sh 'echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com'
+        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | sh docker login -u $DOCKERHUB_CREDENTIALS_USR -password-stdin'
       }
     }
-    stage('Push to Heroku registry') {
+    stage('Push to Dockerhub') {
       steps {
-        sh '''
-          docker tag darinpope/java-web-app:latest registry.heroku.com/$APP_NAME/web
-          docker push registry.heroku.com/$APP_NAME/web
-        '''
+        sh 'docker tag my-app-image rbonchev/java-web-app:latest'
+        sh 'docker push rbonchev/java-web-app:latest'
       }
     }
-    stage('Release the image') {
-      steps {
-        sh '''
-          heroku container:release web --app=$APP_NAME
-        '''
-      }
-    }
+    
   }
   post {
     always {
