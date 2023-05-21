@@ -18,7 +18,6 @@ pipeline {
     }
     stage('Push to Dockerhub') {
       steps {
-        sh 'docker tag my-app-image rbonchev/java-web-app:latest'
         sh 'docker push rbonchev/java-web-app:latest'
       }
     }
