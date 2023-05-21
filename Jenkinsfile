@@ -18,7 +18,7 @@ pipeline {
     }
     stage('Push to Dockerhub') {
       steps {
-        sh 'docker push rbonchev/java-web-app:latest'
+        sh 'docker push rbonchev/java-web-app:$BUILD_NUMBER'
       }
     }
     
